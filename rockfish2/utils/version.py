@@ -6,7 +6,7 @@ def get_git_revision():
     Returns the revision number of the git repository.
     """
 
-    modpath = __import__("rockfish").__path__[0]
+    modpath = __import__("rockfish2").__path__[0]
     sh = 'cd {:}; git log --oneline | wc -l'.format(modpath)
     proc = subprocess.Popen(sh, shell=True,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -50,7 +50,7 @@ def get_version(version):
     sub = ''
     if version[3] == 'alpha' and version[4] == 0:
         # At the toplevel, this would cause an import loop.
-        from rockfish.utils.version import get_git_revision
+        from rockfish2.utils.version import get_git_revision
         revision = get_git_revision()
         sub = '.dev{:}'.format(revision)
 

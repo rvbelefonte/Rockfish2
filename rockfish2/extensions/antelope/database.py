@@ -322,7 +322,7 @@ class AntelopeDatabase(Connection):
 
         if paths_only:
             paths = [os.path.join(os.path.dirname(self.PATH), 
-                dat.ix[i]['dir'], dat.ix[i]['dfile']) for i in 
+                str(dat.ix[i]['dir']),str(dat.ix[i]['dfile'])) for i in 
                 range(len(dat))]
             return paths
         else:
