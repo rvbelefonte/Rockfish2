@@ -1,0 +1,12 @@
+sts2_g1         V    c yes   1.4158000e-03   1       1500         1.000000 nom_response                                                     sts2-g1                           1389900251.54326
+sts2_g2         V    c yes   1.4158000e-03   1       1500         1.000000 nom_response                                                     sts2-g2                           1389900251.56377
+sts2_g3         V    c yes   3.0712332e-02   1       1500         1.000000 nom_response                                                     sts2-g3                           1389900251.57100
+sts2-g3-m1      V    c yes   3.0023787e-02   1       1500         1.000000 nom_response                                                     sts2-g3-mod                       1389900251.57775
+sts2_5          V    c yes   4.2337543e-02   1       1500         1.000000 nom_response                                                     sts2_5                            1389900251.58450
+sts4_b          V    c yes   4.2337543e-02   1       1500         1.000000 nom_response                                                     sts4_b                            1389900251.59198
+cmg3t           V    v yes   2.1485175e-02   1       1500         1.000000 nom_response                                                     cmg3t                             1389900251.59873
+trillium_120    V    v yes  -9.0375000e-01   1       1200         1.000000 nom_response                                                     trillium_120                      1389900251.60573
+trillium_240    V    v yes  -9.0375000e-01   1       1200         1.000000 nom_response                                                     trillium_240                      1389900251.61347
+trillium_240_1  V    v yes  -9.0819344e-01   1       1200         1.000000 nom_response                                                     trillium_240_1                    1389900251.62122
+trillium_240_2  V    v yes  -9.0201781e-01   1       1200         1.000000 nom_response                                                     trillium_240_2                    1389900251.63192
+loop            D    -       1.0000000e+00   0          1         1.000000 nom_response                                                     loop                              1389900251.64296
