@@ -4,7 +4,7 @@ Database tools
 import os
 import pandas as pd
 from pandas.io import sql as psql
-from sqlitedict import SqliteDict
+#from sqlitedict import SqliteDict
 from rockfish2 import logging
 
 #XXX dev

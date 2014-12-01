@@ -23,17 +23,23 @@ class Profile(object):
         approximate a velocity-depth function parameterized by a stack of
         linear gradient layers.
         """
-        if vfield not in self.model:
-            msg = """'{:}' is not defined in the model. Set vfield equal to
-                one of: {:}""".format(vfield, self.model.columns).strip()
-            raise KeyError(msg)
+        vfield = np.atleast_1d(vfield)
+        for v in vfield:
+            if v not in self.model:
+                msg = """'{:}' is not defined in the model. Set vfield equal to
+                    at least one of: {:}"""\
+                            .format(vfield, self.model.columns).strip()
+                raise KeyError(msg)
 
         lyrs = self.to_layers().model
         nlyr = len(lyrs)
 
         # calc dz nyquist
         dz = lyrs[lyrs.columns[2]]
-        v = np.asarray(self.model[vfield])
+        v = np.min(np.asarray(self.model[vfield]), axis=1)
+        vmax = np.max(np.asarray(self.model[vfield]), axis=1)
+        idx = np.nonzero(v == 0)[0]
+        v[idx] = vmax[idx]
         dz_calc = np.zeros(nlyr)
         for ilyr in range(nlyr):
             v_min = np.min([v[ilyr], v[ilyr + 1]])
@@ -98,8 +104,6 @@ class Profile(object):
         layers.model = layers.model[columns]
 
         return layers
-
-
 
     def plot(self, columns=None, figsize=(10, 5), invert_yaxis=True,
             fmt='.-b', layer_fmt='-k', layers=True):

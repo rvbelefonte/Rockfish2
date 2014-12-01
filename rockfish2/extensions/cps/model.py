@@ -21,7 +21,7 @@ class CPSModel1d(Profile):
 
         Profile.__init__(self, *args, **kwargs)
 
-    def write(self, path_or_buf=None, float_format='%7.3f', **kwargs):
+    def write(self, path_or_buf=None, float_format='%10.6f', **kwargs):
         """
         Write profile to the Computer Programs in Seismology model format
         
@@ -34,6 +34,8 @@ class CPSModel1d(Profile):
         model = self.model.copy()
         col = ['hr'] + [k for k in model if k != 'hr']
         model['hr'] = np.concatenate((np.diff(np.asarray(model.index)), [0.0]))
+        model.index = np.arange(len(model))
+        model = model[0:len(model) - 1]
 
         sng = "MODEL\n"
         sng += "{:}\n".format(self.NAME)
