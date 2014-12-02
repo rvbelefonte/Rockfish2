@@ -23,7 +23,7 @@ class modelTestCase(unittest.TestCase):
         m = model.CPSModel1d()
 
         self.assertEqual(len(m.model), 0)
-        self.assertTrue(hasattr(m, 'write_model'))\
+        self.assertTrue(hasattr(m, 'write'))\
 
     def test_write(self):
         """
@@ -37,7 +37,7 @@ class modelTestCase(unittest.TestCase):
         if os.path.isfile(modfile):
             os.remove(modfile)
 
-        m.write_model(modfile)
+        m.write(modfile)
 
         self.assertTrue(os.path.isfile(modfile))
 
@@ -45,25 +45,20 @@ class modelTestCase(unittest.TestCase):
 
         os.remove(modfile)
 
-    def dev__sprep96(self):
+    def test_read(self):
         """
-        Should run sprep96 for the current model
+        Should read data from the CPS model format
         """
+        m = model.CPSModel1d()
 
-        m = model.CPSModel1d(index=[0, 0.5, 1.0],
-                data=[[1.5,0], [1.6, 0.2], [3, 0.3]],
-                columns=['Vp', 'Vs'], index_name='depth')
+        m.read(get_example_file('nmodel.wat'))
 
-        m.interp(method='nyquist', inplace=True)
-
-        m._sprep96()
-
-
+        self.assertEqual(len(m.model), 29)
 
  
 def suite():
-    testSuite = unittest.makeSuite(modelTestCase, 'dev')
-    #XXX testSuite.addTest(doctest.DocTestSuite(database))
+    testSuite = unittest.makeSuite(modelTestCase, 'test')
+    testSuite.addTest(doctest.DocTestSuite(model))
 
     return testSuite
 

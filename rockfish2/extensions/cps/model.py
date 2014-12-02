@@ -4,7 +4,7 @@ Tools for working with Computer Programs in Seismology velocity models
 import os
 import numpy as np
 import datetime
-import subprocess
+import pandas as pd
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from rockfish2 import logging
@@ -18,8 +18,14 @@ class CPSModel1d(Profile):
         self.NAME = kwargs.pop('name', '1D model')
         self.UNITS = kwargs.pop('units', 'KGS')
         self.ISOTROPY = kwargs.pop('isotropy', 'ISOTROPIC')
+        self.SHAPE = kwargs.pop('shape', 'FLAT EARTH')
+        self.DIM = kwargs.pop('dim', '1-D')
 
         Profile.__init__(self, *args, **kwargs)
+
+    def __str__(self):
+
+        return self.write()
 
     def write(self, path_or_buf=None, float_format='%10.6f', **kwargs):
         """
@@ -35,14 +41,14 @@ class CPSModel1d(Profile):
         col = ['hr'] + [k for k in model if k != 'hr']
         model['hr'] = np.concatenate((np.diff(np.asarray(model.index)), [0.0]))
         model.index = np.arange(len(model))
-        model = model[0:len(model) - 1]
+        #model = model[0:len(model) - 1]
 
         sng = "MODEL\n"
         sng += "{:}\n".format(self.NAME)
         sng += "{:}\n".format(self.ISOTROPY)
         sng += "{:}\n".format(self.UNITS)
-        sng += "FLAT EARTH\n"
-        sng += "1-D\n"
+        sng += "{:}\n".format(self.SHAPE)
+        sng += "{:}\n".format(self.DIM)
         sng += "CONSTANT VELOCITY\n"
         sng += "#\n"
         sng += "Created by: {:}{:}\n"\
@@ -62,28 +68,37 @@ class CPSModel1d(Profile):
             f = open(path_or_buf, 'w')
             f.write(sng)
 
-
-    # TODO move these to class CPS, which will have CPS.model =
-    # CPSModel1d()
-    def _sprep96(self, model_path='cps_data'):
+    def read(self, filename, sep='\t'):
         """
-        Create input file for calculating dispersion curves
+        Write profile from the Computer Programs in Seismology model format
         """
-        if not os.path.isdir(model_path):
-            os.mkdir(model_path)
+        f = open(filename, 'rb')
+        kind = f.readline().replace('\n', '')
+        assert kind.startswith('MODEL'),\
+                'File does not appear to be CPS format'
+        self.NAME = f.readline().replace('\n', '')
+        self.ISOTROPY = f.readline().replace('\n', '')
+        self.UNITS = f.readline().replace('\n', '')
+        self.SHAPE = f.readline().replace('\n', '')
+        self.DIM = f.readline().replace('\n', '')
+        _ = f.readline().replace('\n', '')
+        _ = f.readline().replace('\n', '')
+        _ = f.readline().replace('\n', '')
+        _ = f.readline().replace('\n', '')
+        _ = f.readline().replace('\n', '')
+        cols = f.readline().replace('\n', '').split()
         
-        modfile = os.path.join(model_path, 'model.dat')
-        logging.info('Writing CPS model file to: {:}', modfile)
-        self.write(modfile)
+        self.model = pd.read_csv(filename, sep=sep, skiprows=11,
+                index_col=0)
 
-        sh = "sprep96 -M {:} -DT 1.0 -NPTS 2 -L -R -NMOD 2"\
-                .format(modfile)
+        try:
+            dz = self.model.index[:]
+            z = np.cumsum(np.asarray(dz)) - dz[0]
+            if z[-1] == 0:
+                z[-1] = dz[-2]
 
-        subprocess.call(sh, shell=True)
+            self.model.index = z
+            self.model.index.name = 'depth'
 
-    def calc_dispersion(self):
-        """
-        Calculate dispersion curves
-        """
-        # TODO
-        raise NotImplementedError
+        except:
+            pass

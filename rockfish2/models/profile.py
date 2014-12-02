@@ -106,7 +106,7 @@ class Profile(object):
         return layers
 
     def plot(self, columns=None, figsize=(10, 5), invert_yaxis=True,
-            fmt='.-b', layer_fmt='-k', layers=True):
+            fmt='.-b', layer_fmt='-k', layers=True, show=True):
 
         if columns is None:
             columns = self.model.columns
@@ -141,4 +141,5 @@ class Profile(object):
             plt.xlabel(c)
             plt.ylabel(self.model.index.name)
 
-        plt.show()
+        if show:
+            plt.show()
