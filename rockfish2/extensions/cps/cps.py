@@ -13,8 +13,8 @@ from rockfish2 import logging
 from rockfish2.extensions.cps.model import CPSModel1d
 
 # XXX dev
-from logbook import Logger
-logging = Logger('cps-dev', level=0)
+#from logbook import Logger
+#logging = Logger('cps-dev', level=0)
 
 def get_flags(**kwargs):
     flags = []
