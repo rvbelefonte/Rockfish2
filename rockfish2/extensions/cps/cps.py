@@ -3,6 +3,7 @@ Wrappers for running Computer Programs in Seismology
 """
 import os
 import shutil
+import glob
 import copy
 import numpy as np
 from collections import OrderedDict
@@ -158,7 +159,8 @@ class CPS(CPSModel1d):
 
         CPSModel1d.__init__(self, *args, **kwargs)
 
-        self._DIR = kwargs.pop('dir', self._get_tempdir(replace=True))
+        id = kwargs.pop('id', None)
+        self._DIR = kwargs.pop('dir', self._get_tempdir(replace=True, id=id))
         self.FMAX = kwargs.pop('fmax', 10)
 
         self.CLEANUP = kwargs.pop('cleanup', True)
@@ -170,9 +172,13 @@ class CPS(CPSModel1d):
         if self.CLEANUP:
             self.cleanup()
 
-    def _get_tempdir(self, replace=False):
+    def _get_tempdir(self, replace=False, id=None):
 
-        wd = 'temp.CPS{:}'.format(int(time.time()))
+        if id is None:
+            n = len(glob.glob('temp.CPS.*'))
+            id = '{:}.{:}'.format(n, int(time.time() * 1e6))
+
+        wd = 'temp.CPS.{:}'.format(id)
 
         if os.path.isdir(wd) and replace:
             shutil.rmtree(wd)
@@ -587,7 +593,7 @@ class CPS(CPSModel1d):
                     ax4.plot(f['dcdb'], depth)
                     ax5.plot(f['dcdr'], depth)
 
-        mod.plot(show=False)
+        #mod.plot(show=False)
 
         if show:
             plt.show()
