@@ -150,7 +150,7 @@ class AntelopeDatabase(Connection):
             Y(a.geom) AS lat, X(a.geom) AS lon, Z(a.geom)/1000. AS elev,
             a.staname AS staname, a.statype AS statype,
             a.refsta AS refsta, IFNULL(Distance(CastToXY(b.geom), 
-            CastToXY(a.geom), 1), 0.0) AS dist_m, a.Iddate AS Iddate
+            CastToXY(a.geom)), 0.0) AS dist_m, a.Iddate AS Iddate
             FROM _site AS a INNER JOIN _site AS b ON a.refsta = b.sta"""
         self.execute(sql)
 

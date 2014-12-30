@@ -11,10 +11,24 @@ from rockfish2 import logging
 #from logbook import Logger
 #logging = Logger('dev-database')
 
+from sqlite3 import OperationalError
 try:
     from pysqlite2 import dbapi2
-except ImportError:
-    from sqlite3 import dbapi2
+    OperationalError = dbapi2.OperationalError
+
+    db = dbapi2.Connection(':memory:')
+    db.execute('SELECT load_extension("libspatialite")')
+except OperationalError:
+    msg = 'pysqlite2 found, but cannot load libspatialite extension.'
+    msg += ' Looking for pyspatialite instead.'
+    logging.warning(msg)
+    try:
+        from pyspatialite import dbapi2
+    except ImportError:
+        msg = 'Falling back to default sqlite3 library'
+        msg += ', spatialite tools will likely fail.'
+        logging.warning(msg)
+        from sqlite3 import dbapi2
 
 def _process_exception(exception, message, warn=False):
 
@@ -113,7 +127,11 @@ class Connection(dbapi2.Connection):
         """
         self.enable_load_extension(True)
         logging.debug('Loading libspatialite')
-        self.execute('SELECT load_extension("libspatialite")')
+
+        try:
+            self.execute('SELECT load_extension("libspatialite")')
+        except DatabaseOperationalError:
+            pass
 
         if 'spatial_ref_sys' not in self.tables:
             logging.debug("Creating table 'spatial_ref_sys'")
