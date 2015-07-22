@@ -90,17 +90,22 @@ class Stream(ObspyStream):
             for tr in self.traces:
                 tr.data = np.sign(tr.data)
         elif method == 'stalta':
+            _apply = kwargs.get('apply', True)
             sta = kwargs.get('sta', 3.)
-            lta = kwargs.get('sta', 10.)
-            trigger_on = kwargs.get('trigger_on', 1.2)
+            lta = kwargs.get('lta', 10.)
+            trigger_on = kwargs.get('trigger_on', 1.1)
             trigger_off = kwargs.get('trigger_off', 1.0)
             for tr in self.traces:
-                _sta = int(tr.stats['sampling_rate'] * sta)
-                _lta = int(tr.stats['sampling_rate'] * lta)
+                df = tr.stats['sampling_rate']
+                _sta = int(sta * df)
+                _lta = int(lta * df)
+
                 cft = trigger.recSTALTA(tr.data, _sta, _lta)
-                trg = trigger.triggerOnset(cft, trigger_on, trigger_off)
-                for on, off in trg:
-                    tr.data[on:off] = 0
+                tr.trg = trigger.triggerOnset(cft, trigger_on, trigger_off)
+                
+                if _apply:
+                    for on, off in tr.trg:
+                        tr.data[on:off] = 0
         else:
             raise ValueError("Unknown method '{:}'".format(method))
 
@@ -142,6 +147,7 @@ class Stream(ObspyStream):
             tr.data[0:n] += _tr.data[0:n]
 
         tr.data /= ntrc
+        tr.stats['nstack'] = ntrc
         st.traces = [tr]
 
         return st

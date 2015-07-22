@@ -9,7 +9,7 @@ from obspy import UTCDateTime
 from obspy.core.stream import _read
 from rockfish2 import logging
 from rockfish2.database.utils import format_where
-from rockfish2.database.database import Connection
+from rockfish2.db import Connection
 from rockfish2.extensions.obspy.stream import Stream
 
 TABLE_FORMATS = {

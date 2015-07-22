@@ -16,7 +16,7 @@ class spatialiteTestCase(unittest.TestCase):
         db = base.dbapi2.Connection(':memory:')
         db.enable_load_extension(True)
 
-        db.execute('SELECT load_extension("libspatialite")')
+        db.execute('SELECT load_extension("mod_spatialite")') 
 
 
 def suite():
