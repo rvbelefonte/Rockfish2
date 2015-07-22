@@ -34,9 +34,10 @@ class P190Database(Connection):
 
         new = not os.path.isfile(database)
 
-        Connection.__init__(self, database=database)
+        Connection.__init__(self, database=database, spatial=True)
 
-        self._init_spatiallite()
+        #XXX this should be handled by spatial=True
+        #self._init_spatiallite()
 
         self.INPUT_SRID = input_srid
         self.OUTPUT_SRID = kwargs.pop('output_srid', input_srid)
