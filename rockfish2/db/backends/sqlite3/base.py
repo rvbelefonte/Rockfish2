@@ -57,13 +57,6 @@ def load_spatialite(db):
             .format(MOD_SPATIALITE_PATHS))
 
 
-if not SPATIALITE_ENABLED:
-    # try to load the extensions
-    _db = dbapi2.Connection(':memory:')
-    load_spatialite(_db)
-    SPATIALITE_ENABLED = True
-    logging.debug('... spatialite ENABLED')
-
 logging.debug('SPATIALITE_ENABLED={:}'.format(SPATIALITE_ENABLED))
 
 # Exceptions

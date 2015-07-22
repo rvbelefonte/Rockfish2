@@ -10,6 +10,7 @@ from rockfish2.db.backends.sqlite3.base import dbapi2, load_spatialite,\
         SPATIALITE_ENABLED, OperationalError, IntegrityError,\
         ConfigurationError
 
+
 def _process_exception(exception, message, warn=False):
 
     if warn:
@@ -56,6 +57,8 @@ class Connection(dbapi2.Connection):
 
         dbapi2.Connection.__init__(self, database)
         self.row_factory = dbapi2.Row
+
+	self.spatialite_enabled = SPATIALITE_ENABLED
 
         if spatial:
             self.init_spatialite()
@@ -232,10 +235,10 @@ class Connection(dbapi2.Connection):
         """
         Setup a spatialite database.
         """
-        if not SPATIALITE_ENABLED:
+        if not self.spatialite_enabled:
             try:
                 load_spatialite(self)
-                SPATIALITE_ENABLED = True
+                self.spatialite_enabled = True
             except ConfigurationError:
                 msg = "SQLite3 connection cannot load spatialite extensions or"
                 msg += " extensions were not found."
