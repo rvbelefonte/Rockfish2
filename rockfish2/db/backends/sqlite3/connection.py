@@ -6,8 +6,9 @@ import pandas as pd
 from pandas.io import sql as psql
 from rockfish2 import logging
 from rockfish2.utils.loaders import get_resource_file
-from rockfish2.db.backends.sqlite3.base import dbapi2, SPATIALITE_ENABLED,\
-        OperationalError, IntegrityError, ConfigurationError
+from rockfish2.db.backends.sqlite3.base import dbapi2, load_spatialite,\
+        SPATIALITE_ENABLED, OperationalError, IntegrityError,\
+        ConfigurationError
 
 def _process_exception(exception, message, warn=False):
 
@@ -232,9 +233,13 @@ class Connection(dbapi2.Connection):
         Setup a spatialite database.
         """
         if not SPATIALITE_ENABLED:
-            msg = "SQLite3 connection cannot load spatialite extensions or"
-            msg += " extensions were not found."
-            raise ConfigurationError(msg)
+            try:
+                load_spatialite(self)
+                SPATIALITE_ENABLED = True
+            except ConfigurationError:
+                msg = "SQLite3 connection cannot load spatialite extensions or"
+                msg += " extensions were not found."
+                raise ConfigurationError(msg)
 
         if 'spatial_ref_sys' not in self.tables:
             self.execute('SELECT InitSpatialMetadata()')

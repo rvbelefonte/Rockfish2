@@ -10,6 +10,18 @@ from rockfish2 import logging
 #from logbook import Logger
 #logging = Logger('dev-base', level=0)
 
+MOD_SPATIALITE_PATHS = ['mod_spatialite',
+    '/usr/local/lib/mod_spatialite.so']
+
+
+class ConfigurationError(Exception):
+    """
+    Raised if there is a problem with the database driver configuration
+    """
+    pass
+
+
+SPATIALITE_ENABLED = False
 try:
     try:
         from pyspatialite import dbapi2
@@ -28,23 +40,29 @@ except ImportError as exc:
     raise ImportError(msg)
 
 # Check if we can use the spatialite extension
-if not SPATIALITE_ENABLED:
-    try:
-        _db = dbapi2.Connection(':memory:')
-        if hasattr(_db, 'enable_load_extension'):
-            _db.enable_load_extension(True)
+def load_spatialite(db):
 
+    if hasattr(db, 'enable_load_extension'):
+        db.enable_load_extension(True)
+
+    for p in MOD_SPATIALITE_PATHS:
         try:
-            _db.execute('SELECT load_extension("mod_spatialite")')
-            logging.debug('... found mod_spatialite')
+            db.load_extension(p)
+            logging.debug('... found {:}'.format(p))
+            return
         except:
-            _db.execute('SELECT load_extension("libspatialite")')
-            logging.debug('... found libspatialite')
+            pass
 
-        SPATIALITE_ENABLED = True
-        logging.debug('... spatialite ENABLED')
-    except dbapi2.OperationalError:
-        SPATIALITE_ENABLED = False
+    raise ConfigurationError('Could not find any of: {:}'\
+            .format(MOD_SPATIALITE_PATHS))
+
+
+if not SPATIALITE_ENABLED:
+    # try to load the extensions
+    _db = dbapi2.Connection(':memory:')
+    load_spatialite(_db)
+    SPATIALITE_ENABLED = True
+    logging.debug('... spatialite ENABLED')
 
 logging.debug('SPATIALITE_ENABLED={:}'.format(SPATIALITE_ENABLED))
 
@@ -52,8 +70,3 @@ logging.debug('SPATIALITE_ENABLED={:}'.format(SPATIALITE_ENABLED))
 OperationalError = dbapi2.OperationalError
 IntegrityError = dbapi2.IntegrityError
 
-class ConfigurationError(Exception):
-    """
-    Raised if there is a problem with the database driver configuration
-    """
-    pass
